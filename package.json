@@ -1,0 +1,16 @@
+{
+  "name": "scrapple",
+  "version": "1.0.0",
+  "description": "takes images",
+  "main": "puppet.js",
+  "scripts": {
+    "test": "start"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "chalk": "^3.0.0",
+    "prompts": "^2.3.0",
+    "puppeteer": "^2.0.0"
+  }
+}
