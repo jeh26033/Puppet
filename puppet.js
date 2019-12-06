@@ -6,7 +6,7 @@ const chalk = require('chalk');
 
 const fs = require( 'fs' );
 const https = require( 'https' );
-
+const path = require('path');
 
 
 async function puppet(){
@@ -25,8 +25,7 @@ async function puppet(){
 	
 	1. don't use capitals, or hyphens. f150 for example.
 	2. works on ford, jeep, ram, chrysler and dodge right now
-	3. before you start, have a folder made in the images fold of the model. 
-	   folder name needs to match model
+	3. Make sure the make has a folder inside the image folder
 	4. hit ctrl+c to exit out of the prompt early
 
 	BE AWARE- true to it's name, this program will open a browser and do some stuff, don't be alarmed!
@@ -55,14 +54,17 @@ async function puppet(){
 	if (options.make == 'ford') {
 		ford(options.model)
 	}else if (options.make=='jeep') {
-		jeep(options.model)
+		cdjr(options.make, options.model)
 	}else if (options.make=='ram') {
-		ram(options.model)
+		cdjr(options.make, options.model)
 	}else if (options.make=='dodge') {
-		dodge(options.model)
+		cdjr(options.make, options.model)
 	}else if (options.make=='chrysler') {
-		chrysler(options.model)
+		cdjr(options.make, options.model)
+	}else if (options.make=='fiat') {
+		cdjr(options.make, options.model)
 	}
+
 
 	else{
 		wam()
@@ -94,7 +96,7 @@ async function ford(model) {
    	await page.evaluate(scrollToBottom);
 	await page.waitFor(3000);
     const images = await page.evaluate( () => Array.from( document.images, e => e.src ) );
-
+	createDirectories(`images/ford/${model}`)
     for ( let i = 0; i < images.length; i++ )
     {
     	try {
@@ -116,11 +118,10 @@ async function ford(model) {
     console.log(`Done! Downloaded ${images.length} images`)
 };
 
-
 /* ============================================================
-    JEEP!
+    CDJR!
 ============================================================ */
-async function jeep(model) {
+async function cdjr(make, model) {
     const browser = await puppeteer.launch({
     	headless: false,
 	    defaultViewport: null,
@@ -128,7 +129,7 @@ async function jeep(model) {
 	    });
     const page = await browser.newPage();
     let result;
-    await page.goto(`https://www.jeep.com/${model}/gallery.html`, {
+    await page.goto(`https://www.${make}.com/${model}/gallery.html`, {
     	waitUntil: 'networkidle2'
     });
    	await page.evaluate(scrollToBottom);
@@ -136,11 +137,13 @@ async function jeep(model) {
 
     const images = await page.evaluate( () => Array.from( document.images, e => e.src ) );
     console.log(images)
+    createDirectories(`images/${make}/${model}`)
     for ( let i = 0; i < images.length; i++ )
     {
     	try {
     		if (images[i].includes('gallery')) {
-		        result = await download( images[i], `images/jeep/${model}/image-${i}.png` );
+    			
+		        result = await download(images[i], `images/${make}/${model}/image-${i}.png` );
 		        if ( result === true )
 		        {
 		        	console.log(chalk.magenta('Success:', chalk.green(images[i]), 'has been downloaded successfully.' ));
@@ -156,128 +159,18 @@ async function jeep(model) {
     console.log(`Done! Downloaded ${images.length} images`)
 };
 
-/* ============================================================
-    Chrysler!
-============================================================ */
-async function chrysler(model) {
-    const browser = await puppeteer.launch({
-    	headless: false,
-	    defaultViewport: null,
-	    args: ['--window-size=1920, 1080']
-	    });
-    const page = await browser.newPage();
-    let result;
-    await page.goto(`https://www.chrysler.com/${model}/gallery.html`, {
-    	waitUntil: 'networkidle2'
-    });
-   	await page.evaluate(scrollToBottom);
-	await page.waitFor(3000);
 
-    const images = await page.evaluate( () => Array.from( document.images, e => e.src ) );
-    console.log(images)
-    for ( let i = 0; i < images.length; i++ )
-    {
-    	try {
-    		if (images[i].includes('gallery')) {
-		        result = await download( images[i], `images/chrysler/${model}/image-${i}.png` );
-		        if ( result === true )
-		        {
-		        	console.log(chalk.magenta('Success:', chalk.green(images[i]), 'has been downloaded successfully.' ));
-		        }
-		    }
-		}catch(error) {
-	        console.log(chalk.red('Error:', images[i], 'was not downloaded.'));
-	        console.error( result );
-        }
-    }
-
-    await browser.close();
-    console.log(`Done! Downloaded ${images.length} images`)
-};
-/* ============================================================
-    Ram Trucks!
-============================================================ */
-async function ram(model) {
-    const browser = await puppeteer.launch({
-    	headless: false,
-	    defaultViewport: null,
-	    args: ['--window-size=1920, 1080']
-	    });
-    const page = await browser.newPage();
-    let result;
-    await page.goto(`https://www.ramtrucks.com/${model}/gallery.html`, {
-    	waitUntil: 'networkidle2'
-    });
-   	await page.evaluate(scrollToBottom);
-	await page.waitFor(3000);
-
-    const images = await page.evaluate( () => Array.from( document.images, e => e.src ) );
-    console.log(images)
-    for ( let i = 0; i < images.length; i++ )
-    {
-    	try {
-    		if (images[i].includes('gallery')) {
-		        result = await download( images[i], `images/ramtrucks/${model}/image-${i}.png` );
-		        if ( result === true )
-		        {
-		        	console.log(chalk.magenta('Success:', chalk.green(images[i]), 'has been downloaded successfully.' ));
-		        }
-		    }
-		}catch(error) {
-	        console.log(chalk.red('Error:', images[i], 'was not downloaded.'));
-	        console.error( result );
-        }
-    }
-
-    await browser.close();
-    console.log(`Done! Downloaded ${images.length} images`)
-};
-
-/* ============================================================
-    Dodge!
-============================================================ */
-async function dodge(model) {
-    const browser = await puppeteer.launch({
-    	headless: false,
-	    defaultViewport: null,
-	    args: ['--window-size=1920, 1080']
-	    });
-    const page = await browser.newPage();
-    let result;
-    await page.goto(`https://www.dodge.com/${model}/gallery.html`, {
-    	waitUntil: 'networkidle2'
-    });
-   	await page.evaluate(scrollToBottom);
-	await page.waitFor(3000);
-
-    const images = await page.evaluate( () => Array.from( document.images, e => e.src ) );
-    console.log(images)
-    for ( let i = 0; i < images.length; i++ )
-    {
-    	try {
-    		if (images[i].includes('gallery')) {
-		        result = await download( images[i], `images/dodge/${model}/image-${i}.png` );
-		        if ( result === true )
-		        {
-		        	console.log(chalk.magenta('Success:', chalk.green(images[i]), 'has been downloaded successfully.' ));
-		        }
-		    }
-		}catch(error) {
-	        console.log(chalk.red('Error:', images[i], 'was not downloaded.'));
-	        console.error( result );
-        }
-    }
-
-    await browser.close();
-    console.log(`Done! Downloaded ${images.length} images`)
-};
 /* ============================================================
     Promise-Based Download Function
 ============================================================ */
 
 const download  = ( url, destination ) => new Promise( ( resolve, reject ) =>
 {
+
+
     const file = fs.createWriteStream( destination );
+
+
     https.get( url, response =>
     {
         response.pipe( file );
@@ -288,6 +181,7 @@ const download  = ( url, destination ) => new Promise( ( resolve, reject ) =>
     })
     .on( 'error', error =>
     {
+    		
         fs.unlink( destination );
         reject( error.message );
     });
@@ -308,6 +202,21 @@ async function scrollToBottom() {
       }
     }, delay);
   });
+}
+
+/* ============================================================
+    Make some Dirrrs
+============================================================ */
+async function createDirectories(pathname) {
+   const __dirname = path.resolve();
+   pathname = pathname.replace(/^\.*\/|\/?[^\/]+\.[a-z]+|\/$/g, ''); // Remove leading directory markers, and remove ending /file-name.extension
+   fs.mkdir(path.resolve(__dirname, pathname), { recursive: true }, e => {
+       if (e) {
+           console.error(e);
+       } else {
+           console.log('Success');
+       }
+    });
 }
 puppet();
 
