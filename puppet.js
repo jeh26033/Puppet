@@ -23,8 +23,8 @@ async function puppet(){
         
 --instructions for use--
 	
-	1. don't use capitals!
-	2. only works on ford and jeeps right now
+	1. don't use capitals, or hyphens. f150 for example.
+	2. works on ford, jeep, ram, chrysler and dodge right now
 	3. before you start, have a folder made in the images fold of the model. 
 	   folder name needs to match model
 	4. hit ctrl+c to exit out of the prompt early
@@ -56,7 +56,14 @@ async function puppet(){
 		ford(options.model)
 	}else if (options.make=='jeep') {
 		jeep(options.model)
+	}else if (options.make=='ram') {
+		ram(options.model)
+	}else if (options.make=='dodge') {
+		dodge(options.model)
+	}else if (options.make=='chrysler') {
+		chrysler(options.model)
 	}
+
 	else{
 		wam()
 	}
@@ -146,10 +153,124 @@ async function jeep(model) {
     }
 
     await browser.close();
-    console.log(`Done! Downloaded ${i} images`)
+    console.log(`Done! Downloaded ${images.length} images`)
 };
 
+/* ============================================================
+    Chrysler!
+============================================================ */
+async function chrysler(model) {
+    const browser = await puppeteer.launch({
+    	headless: false,
+	    defaultViewport: null,
+	    args: ['--window-size=1920, 1080']
+	    });
+    const page = await browser.newPage();
+    let result;
+    await page.goto(`https://www.chrysler.com/${model}/gallery.html`, {
+    	waitUntil: 'networkidle2'
+    });
+   	await page.evaluate(scrollToBottom);
+	await page.waitFor(3000);
 
+    const images = await page.evaluate( () => Array.from( document.images, e => e.src ) );
+    console.log(images)
+    for ( let i = 0; i < images.length; i++ )
+    {
+    	try {
+    		if (images[i].includes('gallery')) {
+		        result = await download( images[i], `images/chrysler/${model}/image-${i}.png` );
+		        if ( result === true )
+		        {
+		        	console.log(chalk.magenta('Success:', chalk.green(images[i]), 'has been downloaded successfully.' ));
+		        }
+		    }
+		}catch(error) {
+	        console.log(chalk.red('Error:', images[i], 'was not downloaded.'));
+	        console.error( result );
+        }
+    }
+
+    await browser.close();
+    console.log(`Done! Downloaded ${images.length} images`)
+};
+/* ============================================================
+    Ram Trucks!
+============================================================ */
+async function ram(model) {
+    const browser = await puppeteer.launch({
+    	headless: false,
+	    defaultViewport: null,
+	    args: ['--window-size=1920, 1080']
+	    });
+    const page = await browser.newPage();
+    let result;
+    await page.goto(`https://www.ramtrucks.com/${model}/gallery.html`, {
+    	waitUntil: 'networkidle2'
+    });
+   	await page.evaluate(scrollToBottom);
+	await page.waitFor(3000);
+
+    const images = await page.evaluate( () => Array.from( document.images, e => e.src ) );
+    console.log(images)
+    for ( let i = 0; i < images.length; i++ )
+    {
+    	try {
+    		if (images[i].includes('gallery')) {
+		        result = await download( images[i], `images/ramtrucks/${model}/image-${i}.png` );
+		        if ( result === true )
+		        {
+		        	console.log(chalk.magenta('Success:', chalk.green(images[i]), 'has been downloaded successfully.' ));
+		        }
+		    }
+		}catch(error) {
+	        console.log(chalk.red('Error:', images[i], 'was not downloaded.'));
+	        console.error( result );
+        }
+    }
+
+    await browser.close();
+    console.log(`Done! Downloaded ${images.length} images`)
+};
+
+/* ============================================================
+    Dodge!
+============================================================ */
+async function dodge(model) {
+    const browser = await puppeteer.launch({
+    	headless: false,
+	    defaultViewport: null,
+	    args: ['--window-size=1920, 1080']
+	    });
+    const page = await browser.newPage();
+    let result;
+    await page.goto(`https://www.dodge.com/${model}/gallery.html`, {
+    	waitUntil: 'networkidle2'
+    });
+   	await page.evaluate(scrollToBottom);
+	await page.waitFor(3000);
+
+    const images = await page.evaluate( () => Array.from( document.images, e => e.src ) );
+    console.log(images)
+    for ( let i = 0; i < images.length; i++ )
+    {
+    	try {
+    		if (images[i].includes('gallery')) {
+		        result = await download( images[i], `images/dodge/${model}/image-${i}.png` );
+		        if ( result === true )
+		        {
+		        	console.log(chalk.magenta('Success:', chalk.green(images[i]), 'has been downloaded successfully.' ));
+		        }
+		    }
+		}catch(error) {
+	        console.log(chalk.red('Error:', images[i], 'was not downloaded.'));
+	        console.error( result );
+        }
+    }
+
+    await browser.close();
+    console.log(`Done! Downloaded ${images.length} images`)
+};
 /* ============================================================
     Promise-Based Download Function
 ============================================================ */
